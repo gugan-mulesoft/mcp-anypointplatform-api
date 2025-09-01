@@ -1,0 +1,1338 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:mcp="http://www.mulesoft.org/schema/mule/mcp"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/mcp http://www.mulesoft.org/schema/mule/mcp/current/mule-mcp.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_Local" doc:name="HTTP Listener config" doc:id="21bb2560-ecaa-4fbd-848e-7698f60b32c2" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<http:request-config name="HTTP_Request_Login_Config" doc:name="HTTP Request configuration" doc:id="b3a73f36-9218-41ac-b670-f551fcafb664" >
+		<http:request-connection protocol="HTTPS" host="anypoint.mulesoft.com/accounts/login"/>
+	</http:request-config>
+	<mcp:server-config name="MCP_Server" doc:name="MCP Server" doc:id="db948da9-06b1-41e4-b3be-e08475578f0c" serverName="mule-mcp-server" serverVersion="1.0.0">
+		<mcp:sse-server-connection listenerConfig="HTTP_Listener_Local" />
+	</mcp:server-config>
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="d7ac6edb-99cd-4d50-ad8e-d882b452e5a1" >
+		<http:request-connection protocol="HTTPS" />
+	</http:request-config>
+	<flow name="mcp-anypointplatformFlow" doc:id="6a089497-9e2a-43ed-959e-c834607c750c" >
+		<mcp:tool-listener doc:name="MCP Server - Tool Listener" doc:id="cb3522c9-5e27-4368-bf29-134c2161471a" name="Login" config-ref="MCP_Server">
+			<mcp:description ><![CDATA[GetScheduler
+Retrieve scheduler configurations for a given application in Anypoint Runtime Manager (ARM).
+
+GetSpecs
+Fetch the API specifications (RAML/OAS) or associated design assets for an application from Anypoint Exchange.
+
+GetUserInformation
+Retrieve information about users associated with an application (e.g., owners, contributors, or access roles).
+
+ReadLogs
+Read and view runtime logs for a given application from Anypoint Monitoring or Runtime Manager.
+
+DownloadLogs
+Download application logs in bulk for debugging, archival, or offline analysis.
+
+GetExchangeAsset
+Fetch details of a specific Exchange asset (API, connector, template, or example) associated with the application.
+
+SchedulerActivation
+Enable or disable a scheduler for the given application.
+
+UpdateFixedFrequency
+Update the scheduler configuration to use a fixed frequency (e.g., every 5 minutes).
+
+UpdateCronConfig
+Update the scheduler configuration to use a cron expression (e.g., every Monday at 9 AM).
+
+ReleaseChannel
+Manage release channels (production, sandbox, etc.) for deploying or promoting applications.
+
+ReplicaFlow
+Scale application replicas or manage flow replicas to handle workload distribution.
+
+AppStart
+Start a stopped application in Anypoint Runtime Manager.
+
+AppStop
+Stop a running application in Anypoint Runtime Manager.
+
+RunScheduler
+Manually trigger a scheduler execution for the application outside its regular schedule.
+
+GetEnv
+Fetch environment information (e.g., CloudHub, RTF, or sandbox details) for the given application.
+
+GetDevelopmentInfo
+Retrieve development-related metadata, such as deployment info, git details, or CI/CD pipeline data, for the application.]]></mcp:description>
+			<mcp:parameters-schema ><![CDATA[{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "LoginAnypoint",
+  "type": "object",
+  "definitions": {
+    "GetScheduler": {
+      "title": "Get Scheduler Request",
+      "type": "object",
+      "properties": {
+        "appName": { "type": "string", "description": "Name of application in anypoint platform" }
+      },
+      "required": ["appName"],
+      "additionalProperties": true
+    },
+    "GetSchedulerFromEnv": {
+      "title": "Get Scheduler From Environment Request",
+      "type": "object",
+      "properties": {
+        "envId": { "type": "string", "description": "Id of the environment in anypoint platform" }
+      },
+      "required": ["envId"],
+      "additionalProperties": true
+    },
+    "GetSpecs": {
+      "title": "Get Specs Request",
+      "type": "object",
+      "properties": {
+        "appName": { "type": "string", "description": "Name of application in anypoint platform" }
+      },
+      "required": ["appName"],
+      "additionalProperties": true
+    },
+    "GetUserInformation": {
+      "title": "Get User Info Request",
+      "type": "object",
+      "properties": {},
+      "required": [],
+      "additionalProperties": true
+    },
+    "ReadLogs": {
+      "title": "Read Logs Request",
+      "type": "object",
+      "properties": {
+        "appName": { "type": "string", "description": "Name of application in anypoint platform" }
+      },
+      "required": ["appName"],
+      "additionalProperties": true
+    },
+    "DownloadLogs": {
+      "title": "Download Logs Request",
+      "type": "object",
+      "properties": {
+        "appName": { "type": "string", "description": "Name of application in anypoint platform" }
+      },
+      "required": ["appName"],
+      "additionalProperties": true
+    },
+    "GetExchangeAsset": {
+      "title": "Get Exchange Asset Request",
+      "type": "object",
+      "properties": {},
+      "required": [],
+      "additionalProperties": true
+    },
+    "SchedulerActivation": {
+      "title": "Scheduler Activation Request",
+      "type": "object",
+      "properties": {
+        "appName": { "type": "string", "description": "Name of application in anypoint platform" },
+        "flowName": { "type": "string", "description": "flowName of application in anypoint platform" },
+        "enabled": { "type": "string", "description": "enabled of application in anypoint platform" }
+      },
+      "required": ["appName", "flowName", "enabled"],
+      "additionalProperties": true
+    },
+    "UpdateFixedFrequency": {
+      "title": "Update Fixed Frequency Request",
+      "type": "object",
+      "properties": {
+        "appName": { "type": "string", "description": "Name of application in anypoint platform" },
+        "timeUnit": { "type": "string", "description": "Time unit of application in anypoint platform" },
+        "frequency": { "type": "string", "description": "frequency of application in anypoint platform" },
+        "flowName": { "type": "string", "description": "flowName of application in anypoint platform" }
+      },
+      "required": ["appName", "timeUnit", "frequency", "flowName"],
+      "additionalProperties": true
+    },
+    "UpdateCronConfig": {
+      "title": "Update Cron Config Request",
+      "type": "object",
+      "properties": {
+        "appName": { "type": "string", "description": "Name of application in anypoint platform" },
+        "expression": { "type": "string", "description": "expression of application in anypoint platform" },
+        "timeZone": { "type": "string", "description": "timeZone of application in anypoint platform" },
+        "flowName": { "type": "string", "description": "flowName of application in anypoint platform" }
+      },
+      "required": ["appName", "expression", "timeZone", "flowName"],
+      "additionalProperties": true
+    },
+    "ReleaseChannel": {
+      "title": "Release Channel Request",
+      "type": "object",
+      "properties": {
+        "appName": {
+          "type": "string",
+          "description": "Name of application in anypoint platform"
+        },
+        "runtimeReleaseChannel": {
+          "type": "string",
+          "description": "runtimeReleaseChannel of application in anypoint platform",
+          "enum": ["EDGE", "LTS", "None"]
+        }
+      },
+      "required": ["appName", "runtimeReleaseChannel"],
+      "additionalProperties": true
+    },
+    "ReplicaFlow": {
+      "title": "Replica Flow Request",
+      "type": "object",
+      "properties": {
+        "appName": { "type": "string", "description": "Name of application in anypoint platform" }
+      },
+      "required": ["appName"],
+      "additionalProperties": true
+    },
+    "AppStart": {
+      "title": "App Start Request",
+      "type": "object",
+      "properties": {
+        "appName": { "type": "string", "description": "Name of application in anypoint platform" }
+      },
+      "required": ["appName"],
+      "additionalProperties": true
+    },
+    "AppStop": {
+      "title": "App Stop Request",
+      "type": "object",
+      "properties": {
+        "appName": { "type": "string", "description": "Name of application in anypoint platform" }
+      },
+      "required": ["appName"],
+      "additionalProperties": true
+    },
+    "RunScheduler": {
+      "title": "Run Scheduler Request",
+      "type": "object",
+      "properties": {
+        "appName": { "type": "string", "description": "Name of application in anypoint platform" },
+        "flowName": { "type": "string", "description": "Name of application in anypoint platform" }
+      },
+      "required": ["appName", "flowName"],
+      "additionalProperties": true
+    },
+    "GetEnv": {
+      "title": "Get Environment Request",
+      "type": "object",
+      "properties": {},
+      "required": [],
+      "additionalProperties": true
+    },
+    "GetDeploymentInfo": {
+      "title": "Get Deployment Info Request",
+      "type": "object",
+      "properties": {
+        "appName": { "type": "string", "description": "Name of application in anypoint platform" }
+      },
+      "required": ["appName"],
+      "additionalProperties": true
+    },
+    "RunTimeVersion": {
+      "title": "Runtime Version Request",
+      "type": "object",
+      "properties": {
+        "appName": { "type": "string", "description": "Name of application in anypoint platform" },
+        "runtimeVersion": { "type": "string", "description": "runtimeVersion of application in anypoint platform" }
+      },
+      "required": ["appName", "runtimeVersion"],
+      "additionalProperties": true
+    },
+    "GetEntitlements": {
+      "title": "Get Entitlements Request",
+      "type": "object",
+      "properties": {},
+      "required": [],
+      "additionalProperties": true
+    },
+    "GetVcores": {
+      "title": "Get Vcores Request",
+      "type": "object",
+      "properties": {
+	  "environmentType": { "type": "string", "description": "environmentType of anypoint platform" }
+	  },
+      "required": ["environmentType"],
+      "additionalProperties": true
+    }
+  ,
+ "GetApplications": {
+      "title": "Get Applications Request",
+      "type": "object",
+      "properties": {
+	  },
+      "required": [],
+      "additionalProperties": true
+    }
+  },
+  "properties": {
+    "operation": {
+      "type": "string",
+      "enum": [
+        "GetScheduler",
+        "GetSchedulerFromEnv",
+        "GetSpecs",
+        "GetUserInformation",
+        "ReadLogs",
+        "DownloadLogs",
+        "GetExchangeAsset",
+        "SchedulerActivation",
+        "UpdateFixedFrequency",
+        "UpdateCronConfig",
+        "ReleaseChannel",
+        "ReplicaFlow",
+        "AppStart",
+        "AppStop",
+        "RunScheduler",
+        "GetEnv",
+        "GetDeploymentInfo",
+        "RunTimeVersion",
+        "GetEntitlements",
+        "GetVcores",
+        "GetApplications"
+      ],
+      "description": "The type of operation to perform"
+    },
+    "data": {
+      "oneOf": [
+        { "if": { "properties": { "operation": { "const": "GetScheduler" } } }, "then": { "$ref": "#/definitions/GetScheduler" } },
+        { "if": { "properties": { "operation": { "const": "GetSchedulerFromEnv" } } }, "then": { "$ref": "#/definitions/GetSchedulerFromEnv" } },
+        { "if": { "properties": { "operation": { "const": "GetSpecs" } } }, "then": { "$ref": "#/definitions/GetSpecs" } },
+        { "if": { "properties": { "operation": { "const": "GetUserInformation" } } }, "then": { "$ref": "#/definitions/GetUserInformation" } },
+        { "if": { "properties": { "operation": { "const": "ReadLogs" } } }, "then": { "$ref": "#/definitions/ReadLogs" } },
+        { "if": { "properties": { "operation": { "const": "DownloadLogs" } } }, "then": { "$ref": "#/definitions/DownloadLogs" } },
+        { "if": { "properties": { "operation": { "const": "GetExchangeAsset" } } }, "then": { "$ref": "#/definitions/GetExchangeAsset" } },
+        { "if": { "properties": { "operation": { "const": "SchedulerActivation" } } }, "then": { "$ref": "#/definitions/SchedulerActivation" } },
+        { "if": { "properties": { "operation": { "const": "UpdateFixedFrequency" } } }, "then": { "$ref": "#/definitions/UpdateFixedFrequency" } },
+        { "if": { "properties": { "operation": { "const": "UpdateCronConfig" } } }, "then": { "$ref": "#/definitions/UpdateCronConfig" } },
+        { "if": { "properties": { "operation": { "const": "ReleaseChannel" } } }, "then": { "$ref": "#/definitions/ReleaseChannel" } },
+        { "if": { "properties": { "operation": { "const": "ReplicaFlow" } } }, "then": { "$ref": "#/definitions/ReplicaFlow" } },
+        { "if": { "properties": { "operation": { "const": "AppStart" } } }, "then": { "$ref": "#/definitions/AppStart" } },
+        { "if": { "properties": { "operation": { "const": "AppStop" } } }, "then": { "$ref": "#/definitions/AppStop" } },
+        { "if": { "properties": { "operation": { "const": "RunScheduler" } } }, "then": { "$ref": "#/definitions/RunScheduler" } },
+        { "if": { "properties": { "operation": { "const": "GetEnv" } } }, "then": { "$ref": "#/definitions/GetEnv" } },
+        { "if": { "properties": { "operation": { "const": "GetDeploymentInfo" } } }, "then": { "$ref": "#/definitions/GetDeploymentInfo" } },
+        { "if": { "properties": { "operation": { "const": "RunTimeVersion" } } }, "then": { "$ref": "#/definitions/RunTimeVersion" } },
+        { "if": { "properties": { "operation": { "const": "GetEntitlements" } } }, "then": { "$ref": "#/definitions/GetEntitlements" } },
+        { "if": { "properties": { "operation": { "const": "GetVcores" } } }, "then": { "$ref": "#/definitions/GetVcores" } },
+        { "if": { "properties": { "operation": { "const": "GetApplications" } } }, "then": { "$ref": "#/definitions/GetApplications" } }
+      ]
+    }
+  },
+  "required": ["operation", "data"],
+  "additionalProperties": true
+}
+]]></mcp:parameters-schema>
+			<mcp:responses >
+				<mcp:text-tool-response-content text="#[payload.^raw]" />
+			</mcp:responses>
+		</mcp:tool-listener>
+		<logger level="INFO" doc:name="Logger" doc:id="b43152fd-4b41-4a29-8666-8257f9e152b9" message='#["The flow has started "]'/>
+		<!-- [STUDIO:"Transform Message"]<ee:transform doc:name="Transform Message" doc:id="e7087416-9962-4c71-8366-637367fc28f1" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+&#45;&#45;-
+{
+	operation: payload.operation,
+	data: read(payload.data , "application/json")
+}&#93;&#93;></ee:set-payload>
+			</ee:message>
+		</ee:transform> [STUDIO] -->
+		<ee:transform doc:name="Transform Message Read" doc:id="a9d8ecb3-b969-4a21-9a2a-2b7aafd76497">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  operation: payload.operation,
+  data: (read(payload.data replace "'" with "\"", "application/json"))  default ""
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<set-variable value="#[payload.data]" doc:name="Set Variable for datas" doc:id="8d4a5087-48f9-4711-b3ec-b5a3002ead19" variableName="datas"/>
+		<set-variable value="#[payload.data.appName]" doc:name="appName" doc:id="5d4e20da-52b1-466b-a429-ccbf8d9969c5" variableName="appName"/>
+		<set-variable value="#[payload.operation]" doc:name=" Operation" doc:id="3bcf7958-a92e-4d62-9398-085b78abe948" variableName="operations"/>
+		<ee:transform doc:name="Transform Message" doc:id="c2a4e62e-0416-4a6d-a176-7837bf14cfee" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/x-www-form-urlencoded
+---
+{
+  "grant_type": "client_credentials",
+  "client_id": "de3934eb48c34f5cb60fd9e799593af0",
+  "client_secret": "d7b6E9CF73EB4F50855f6C1C6aE6e3aE"
+}
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<http:request method="POST" doc:name="Request_Login_Application" doc:id="97e23830-2149-4ec1-bd29-309903a9d5dc" config-ref="HTTP_Request_Login_Config" url="https://anypoint.mulesoft.com/accounts/api/v2/oauth2/token" sendCorrelationId="ALWAYS">
+			<http:headers ><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+	"Authorization": vars.token
+}]]]></http:headers>
+		</http:request>
+		<ee:transform doc:name="Transform Message" doc:id="30718d60-9218-4061-869d-5c8211e0ddaa">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<set-variable value='#[%dw 2.0&#10;output application/json&#10;---&#10;"Bearer " ++ payload.access_token]' doc:name="Set Variable" doc:id="516e0020-18fd-431f-bfab-c895ce6cb22a" variableName="token"/>
+		<flow-ref doc:name="Flow Reference for callGetApplication" doc:id="d6493863-4e96-4876-b6da-7ba5a5651d48" name="callGetApplication" />
+		<choice doc:name="Choice" doc:id="66928a80-1795-4af4-b63d-3d2c3cc9a664">
+			<when expression='#[(!isEmpty(payload.exists)) and (vars.operations is "GetScheduler")]'>
+				<flow-ref doc:name=" getScheduler" doc:id="a3cd10f9-b61e-4110-ac04-9c11eae0fd37" name="getScheduler" />
+			</when>
+			<when expression='#[(!isEmpty(payload.exists)) and (vars.operations is "GetSpecs")]'>
+				<flow-ref doc:name="getSpecs" doc:id="fc6d96a4-07c5-4b91-aba8-2bda4b062e64" name="getSpecs" />
+			</when>
+			<when expression='#[(!isEmpty(payload.exists)) and (vars.operations is "GetUserInformation")]'>
+				<flow-ref doc:name="GetUserInfo" doc:id="065d156c-a91f-42e0-a46a-55c2f6828e13" name="getUserInformation" />
+			</when>
+			<when expression='#[(!isEmpty(payload.exists)) and (vars.operations is "GetExchangeAsset")]'>
+				<flow-ref doc:name="getExchangeAsset" doc:id="951c7a1a-7320-4326-af27-96a67646a488" name="getExchangeAsset" />
+			</when>
+			<when expression='#[(!isEmpty(payload.exists)) and (vars.operations is "ReadLogs")]'>
+				<flow-ref doc:name="ReadLogs" doc:id="657b4f90-c894-4550-922b-f5ad2da7e85a" name="readLogs" />
+			</when>
+			<when expression='#[(!isEmpty(payload.exists)) and (vars.operations is "DownloadLogs")]'>
+				<flow-ref doc:name="downloadLogs" doc:id="fbeaf607-15bd-4182-8727-f712d80439a4" name="downloadLogs" />
+			</when>
+			<when expression='#[(!isEmpty(payload.exists)) and (vars.operations is "SchedulerActivation")]'>
+				<ee:transform doc:name="Transform Message" doc:id="c4f84b19-f716-423a-818c-82ec3a99edc9">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	flowName:vars.datas.flowName,
+	enabled:vars.datas.enabled
+}]]></ee:set-payload>
+					</ee:message>
+					<ee:variables >
+						<ee:set-variable variableName="schedulerChanger" ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	flowName:vars.datas.flowName,
+	enabled:vars.datas.enabled
+}]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+				<flow-ref doc:name="EnableDisableScheduler" doc:id="c6d7966a-c263-4961-8d1d-13379a774b1c" name="enableDisableScheduler" />
+			</when>
+			<when expression='#[(!isEmpty(payload.exists)) and (vars.operations is "UpdateFixedFrequency")]'>
+				<ee:transform doc:name="Transform Message" doc:id="7908cca4-9d01-4586-b895-045e7efb011a">
+			<ee:message>
+			</ee:message>
+			<ee:variables>
+				<ee:set-variable variableName="updateFreq"><![CDATA[%dw 2.0
+output application/json
+---
+{
+	flowName:vars.datas.flowName,
+	timeUnit: vars.datas.timeUnit,
+	frequency: vars.datas.frequency,
+	startDelay:  vars.datas.startDelay default 5,
+	enabled:  vars.datas.enabled default true,
+	fixedFrequencyScheduler:  vars.datas.fixedFrequencyScheduler default true
+}]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+				<flow-ref doc:name="UpdatFixedFrequency" doc:id="6bc24f89-e997-4c95-8bae-d0cc43124600" name="updateFixedFrequency" />
+			</when>
+			<when expression='#[(!isEmpty(payload.exists)) and (vars.operations == "UpdateCronConfig")]'>
+				<ee:transform doc:name="Transform Message" doc:id="cfb5c291-8107-4e3a-bdc2-e19c2540caae">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	flowName:vars.datas.flowName,
+	expression:vars.datas.expression,
+	timeZone:vars.datas.timeZone,
+	enabled:vars.datas.enabled default true
+}]]></ee:set-payload>
+					</ee:message>
+					<ee:variables >
+						<ee:set-variable variableName="updateCron" ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	flowName:vars.datas.flowName,
+	expression:vars.datas.expression,
+	timeZone:vars.datas.timeZone,
+	enabled:vars.datas.enabled default true
+}]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+				<flow-ref doc:name="UpdateCronConfig" doc:id="15e72ff9-f82b-4685-bda0-7b90a5007956" name="updateCronConfig" />
+			</when>
+			<when expression='#[(!isEmpty(payload.exists)) and (vars.operations is "RunTimeVersion")]'>
+				<ee:transform doc:name="Transform Message" doc:id="3d5dca0c-3c4d-4c03-bb8a-0040374e09b9">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	runtimeVersion:vars.datas.runtimeVersion
+}]]></ee:set-payload>
+					</ee:message>
+					<ee:variables >
+						<ee:set-variable variableName="runtimeVersion" ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	runtimeVersion:vars.datas.runtimeVersion
+}]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+				<flow-ref doc:name="runtimeVersionFlow" doc:id="cedacbbf-feb5-47cd-9c86-a3850185b94d" name="runtimeVersion" />
+			</when>
+			<when expression='#[(!isEmpty(payload.exists)) and (vars.operations is "ReplicaFlow")]'>
+				<ee:transform doc:name="Transform Message" doc:id="bdca659f-3aee-4471-9735-8be900e5616c">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	replicas:vars.datas.replicas
+}]]></ee:set-payload>
+					</ee:message>
+					<ee:variables >
+						<ee:set-variable variableName="replicas" ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	replicas:vars.data.replicas
+}]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+				<flow-ref doc:name="Replica Flow Reference" doc:id="ed73d5d0-c7a7-46af-ba19-56389fad523a" name="replicas" />
+			</when>
+			<when expression='#[(!isEmpty(payload.exists)) and (vars.operations is "ReleaseChannel")]'>
+				<ee:transform doc:name="Transform Message" doc:id="a3c39dda-925b-40a4-8d54-2b19351f04fa">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	runtimeReleaseChannel:vars.datas.runtimeReleaseChannel
+}]]></ee:set-payload>
+					</ee:message>
+					<ee:variables >
+						<ee:set-variable variableName="release" ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	replicas:vars.datas.runtimeReleaseChannel
+}]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+				<flow-ref doc:name="Release Channel Flow Reference" doc:id="3e06edfe-2ce0-4748-9a22-16480a7f87ea" name="releaseChannel" />
+			</when>
+			<when expression='#[(!isEmpty(payload.exists)) and (vars.operations is "AppStart")]'>
+				<ee:transform doc:name="Transform Message" doc:id="c628812a-cafe-4306-aecb-7e1e4b755d2a">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	desiredState:vars.datas.desiredState
+}]]></ee:set-payload>
+					</ee:message>
+					<ee:variables >
+						<ee:set-variable variableName="startApp" ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	desiredState:vars.data.desiredState
+}]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+				<flow-ref doc:name="App Start Flow Reference" doc:id="dd15ebd7-cd89-4006-a1ae-09a76aff9e9c" name="startApp" />
+			</when>
+			<when expression='#[(!isEmpty(payload.exists)) and (vars.operations is "AppStop")]'>
+				<ee:transform doc:name="Transform Message" doc:id="54daa398-7e7e-4981-99b5-cfca00ac45e6">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	desiredState:vars.datas.desiredState
+}]]></ee:set-payload>
+					</ee:message>
+					<ee:variables >
+						<ee:set-variable variableName="stopApp" ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	desiredState:vars.data.desiredState
+}]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+				<flow-ref doc:name="StopAppFlow" doc:id="44356988-5f49-4bfd-b197-c3be0e0cadc5" name="StopApp" />
+			</when>
+			<when expression='#[(!isEmpty(payload.exists)) and (vars.operations is "GetEnv")]'>
+				<flow-ref doc:name="getEnv" doc:id="2b4be640-b15f-4bcf-9336-433ee67f431c" name="getEnv" />
+			</when>
+			<when expression='#[(!isEmpty(payload.exists)) and (vars.operations is "GetDeploymentInfo")]'>
+				<flow-ref doc:name="GetDeploymentInfo" doc:id="be2df2b7-e355-480b-8f23-e6ccdf104132" name="getDeploymentInfo" />
+			</when>
+			<when expression='#[(!isEmpty(payload.exists)) and (vars.operations is "RunScheduler")]'>
+				<flow-ref doc:name="runScheduler" doc:id="5b613b52-12fe-42c8-851c-ec1235b00c19" name="runScheduler" />
+			</when>
+			<when expression='#[(!isEmpty(payload.exists)) and (vars.operations is "GetSchedulerFromEnv")]'>
+				<ee:transform doc:name="Transform Message" doc:id="6c881f7f-9a79-4cfa-a821-5ce943e5c797">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	envId:vars.datas.envId
+}]]></ee:set-payload>
+					</ee:message>
+					<ee:variables >
+						<ee:set-variable variableName="envId" ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	envId:vars.datas.envId
+}]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+				<flow-ref doc:name="GetSchedulerFrom" doc:id="c785a5a9-0122-4c10-adc2-33fdfde0676d" name="GetSchedulerFromEnv"/>
+			</when>
+			<when expression='#[(!isEmpty(payload.exists)) and (vars.operations is "GetVcores")]'>
+				<ee:transform doc:name="Transform Message" doc:id="0cbc254b-7fbe-4fbe-8926-cf9e276dd7b8">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	environmentType: vars.datas.environmentType
+}]]></ee:set-payload>
+					</ee:message>
+					<ee:variables >
+						<ee:set-variable variableName="envType" ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	environmentType: vars.datas.environmentType
+}]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+				<flow-ref doc:name="GetVcores" doc:id="31336ae9-321b-4c9c-a456-016621063362" name="GetVcores"/>
+			</when>
+			<when expression='#[(!isEmpty(payload.exists)) and (vars.operations is "GetApplications")]'>
+				<flow-ref doc:name="Flow Reference" doc:id="d5130423-413c-420b-8e46-de4810b990bd" name="GetApplications"/>
+			</when>
+			<otherwise>
+				<logger level="INFO" doc:name="Logger" doc:id="ebe8d6b6-0b26-495f-b4ab-2fe34b61b705" message='#["No Application "]'/>
+			</otherwise>
+		</choice>
+		<ee:transform doc:name="Transform Message" doc:id="189d0cc0-1a7b-4960-8d85-947de02b9555" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="2693dc13-cb47-42dc-87f7-751493e553fd" message='#["The flow has ended"]'/>
+	</flow>
+	<sub-flow name="GetApplications" doc:id="14d49f96-154d-4b16-b36e-3515b6d290ae" >
+		<http:request method="GET" doc:name="Request" doc:id="43ecc8b9-a4a4-4ea3-abc3-c1a84a300424" url="https://anypoint.mulesoft.com/amc/application-manager/api/v2/organizations/${orgId}/environments/${envId}/deployments">
+			<http:headers ><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+	"Authorization": vars.token
+}]]]></http:headers>
+		</http:request>
+	</sub-flow>
+	<sub-flow name="callGetApplication" doc:id="8069ebd0-06cf-4f8b-aeca-7772ddac7198" >
+		<http:request method="GET" doc:name="Request_Get_App" doc:id="fee38524-4706-43ab-ac9e-0882113ee58c" url="https://anypoint.mulesoft.com/amc/application-manager/api/v2/organizations/${orgId}/environments/${envId}/deployments">
+			<http:headers ><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+	"Authorization": vars.token
+}]]]></http:headers>
+		</http:request>
+		<ee:transform doc:name="Transform Message" doc:id="7669d8e4-00e8-471a-843f-b7739a701a7b" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="appId" ><![CDATA[%dw 2.0
+output application/json
+---
+(payload.items filter ((item, index) -> item.name == vars.appName )).id[0]]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<ee:transform doc:name="Transform Message" doc:id="2b28cbc4-deeb-4dc3-ab70-968af48adbff" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[  %dw 2.0
+        output application/json
+        ---
+        {   
+        	applicationName: vars.appName,
+            applicationId: vars.appId,
+            exists: if(!isEmpty(vars.appId)) true else false
+        }]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</sub-flow>
+	<sub-flow name="GetVcores" doc:id="04f9e997-1dcc-48da-946e-593c12e019e1" >
+		<http:request method="GET" doc:name="Request" doc:id="f7113043-dd8e-460a-8273-2213aa556b88" url="https://anypoint.mulesoft.com/accounts/api/organizations/${orgId}/entitlements" target="entitlements">
+			<http:headers><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+	"Authorization": vars.token
+}]]]></http:headers>
+		</http:request>
+		<http:request method="GET" doc:name="Request" doc:id="ab442fcc-249d-4303-ad4c-695edffa946b" url="https://anypoint.mulesoft.com/amc/application-manager/api/v2/organizations/${orgId}/usage/vcores" target="vCores">
+			<http:headers><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+	"Authorization": vars.token
+}]]]></http:headers>
+			<http:query-params><![CDATA[#[{
+	"environmentType":vars.envType.environmentType
+}]]]></http:query-params>
+		</http:request>
+		<ee:transform doc:name="Transform Message" doc:id="93e9a1ec-09f0-45b9-8aa7-bc59df573efc" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+    assigned: vars.entitlements,
+    used : vars.vCores
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</sub-flow>
+	<sub-flow name="GetSchedulerFromEnv" doc:id="ae61a40b-9460-4015-b803-beee7aba2cca" >
+	    <http:request method="GET" doc:name="Request_Get_App" doc:id="e04ddf8c-5589-4fb3-a351-90060066adf8" url="https://anypoint.mulesoft.com/amc/application-manager/api/v2/organizations/${orgId}/environments/${envId}/deployments">
+			<http:headers ><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+	"Authorization": vars.token
+}]]]></http:headers>
+		
+</http:request>
+		<parallel-foreach doc:name="Parallel For Each" doc:id="6caebf80-6858-48de-8f80-187afbe19bf0" maxConcurrency="3" collection="#[payload.items]">
+			<ee:transform doc:name="Transform Message" doc:id="4eb5569d-4bb5-423e-95c3-2bc486256cf1" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+			<set-variable value="#[payload.name]" doc:name="Set Variable" doc:id="da498646-de8c-4778-82e9-33b3b251bf85" variableName="appName"/>
+			<set-variable value="#[payload.id]" doc:name="Set Variable" doc:id="fd39b0cf-0f82-402e-99ae-b4ca17272334" variableName="appId"/>
+			<flow-ref doc:name="Flow Reference" doc:id="bcc534b8-a95e-4e8b-8245-e60e8067e2de" name="listScheduler" />
+			<ee:transform doc:name="Transform Message" doc:id="9cad29ad-c241-4ea4-bf60-811e13d2f40e">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+
+---
+{
+	appId: vars.appId,
+	appName: vars.appName,
+	schedulers: vars.count
+
+	
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		</parallel-foreach>
+	    
+	
+</sub-flow>
+	<sub-flow name="getScheduler" doc:id="357c3ae6-255e-4305-a06a-dd4257a8f29d" >
+		<http:request method="GET" doc:name="Request_Get_Scheduler" doc:id="410f3bcc-f651-4aad-af1b-ab7504896da3" url="https://anypoint.mulesoft.com/amc/application-manager/api/v2/organizations/${orgId}/environments/${envId}/deployments/{id}/schedulers" sendCorrelationId="ALWAYS">
+			<http:headers ><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+	"Authorization": vars.token
+}]]]></http:headers>
+			<http:uri-params ><![CDATA[#[{
+	"id":vars.appId
+}]]]></http:uri-params>
+		</http:request>
+		<ee:transform doc:name="Transform Message" doc:id="8f6887ef-8b8b-4a23-bc26-b3e2ea81493f" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json 
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</sub-flow>
+	<flow name="listScheduler" doc:id="d0eeb6a8-0812-4c45-bf76-3d9726e7fa3c" >
+<http:request method="GET" doc:name="Request_Get_Scheduler" doc:id="2e75017c-6353-4e27-a2b9-82882506a0b9" url="https://anypoint.mulesoft.com/amc/application-manager/api/v2/organizations/${orgId}/environments/${envId}/deployments/{id}/schedulers" sendCorrelationId="ALWAYS">
+			<http:headers ><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+	"Authorization": vars.token
+}]]]></http:headers>
+			<http:uri-params ><![CDATA[#[{
+	"id":vars.appId
+}]]]></http:uri-params>
+		</http:request>
+		<ee:transform doc:name="Transform Message" doc:id="cf475075-d2b0-4d21-969e-3c8c0680a546" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<ee:transform doc:name="Transform Message" doc:id="d2a170e3-b81d-4e45-a496-12ceb248b62f" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="count" ><![CDATA[%dw 2.0
+output application/json
+---
+payload.items map ((item) -> item.flowName)]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<!-- [STUDIO:"Transform Message"]<ee:transform doc:name="Transform Message" doc:id="0314fb9a-8201-4ceb-8613-9db8a96b3da7" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+var arr =vars.count
+&#45;&#45;-
+sizeOf(arr)&#93;&#93;></ee:set-payload>
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="size" ><![CDATA[%dw 2.0
+output application/json
+var arr =vars.count
+&#45;&#45;-
+sizeOf(arr)&#93;&#93;></ee:set-variable>
+			</ee:variables>
+		</ee:transform> [STUDIO] -->
+		<error-handler >
+			<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="8007ddd5-4adc-4d83-9b06-dc3259a69637" type="HTTP:NOT_FOUND">
+				<logger level="INFO" doc:name="Logger" doc:id="8a0c4d98-25a2-49e5-8300-c2ea2c779537" message='#["This flow doesnot have Scheduler"]'/>
+			</on-error-continue>
+		</error-handler>	
+</flow>
+	<sub-flow name="getSpecs" doc:id="2251634a-b954-4baa-86ef-184fa020bc18" >
+		<http:request method="GET" doc:name="Request_Get_Specs" doc:id="c5443423-f42c-4959-a5f6-b9d568081c48" url="https://anypoint.mulesoft.com/amc/application-manager/api/v2/organizations/${orgId}/environments/${envId}/deployments/{id}" sendCorrelationId="ALWAYS">
+			<http:headers ><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+	"Authorization": vars.token
+}]]]></http:headers>
+			<http:uri-params ><![CDATA[#[{
+"id":vars.appId	
+}]]]></http:uri-params>
+		</http:request>
+		<ee:transform doc:name="Transform Message" doc:id="fdb71c95-8964-4820-8c73-5b77c86bc2da">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</sub-flow>
+	<sub-flow name="getUserInformation" doc:id="aa16b68e-9e8a-4911-9440-bd9cde42d334" >
+		<http:request method="GET" doc:name="Request_Get_User_Info" doc:id="522247ef-31c0-4b6d-b216-b78d1a343c76" url="https://anypoint.mulesoft.com/accounts/api/me" sendCorrelationId="ALWAYS">
+			<http:headers ><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+	"Authorization": vars.token
+}]]]></http:headers>
+		</http:request>
+		<ee:transform doc:name="Transform Message" doc:id="71487036-0966-4c2f-9c6a-61d3ef8ec4cd" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</sub-flow>
+	<sub-flow name="getExchangeAsset" doc:id="fbf40c10-dce0-47c0-ba9d-f4c1c1819007" >
+		<http:request method="GET" doc:name="Request_Get_Exchange_Asset" doc:id="d8059a85-e2de-4e66-8cb1-10c0a33de8d8" url="https://anypoint.mulesoft.com/exchange/api/v1/assets?organizationId=${orgId}">
+			<http:headers ><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+	"Authorization": vars.token
+}]]]></http:headers>
+		</http:request>
+		<ee:transform doc:name="Transform Message" doc:id="bcf5fc13-0b16-45b5-aa5f-fa1ad9651be3" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</sub-flow>
+	<sub-flow name="runScheduler" doc:id="0791eb56-50ae-4ec6-8afd-59cc85d23ed3" >
+		<http:request method="POST" doc:name="Request_Run_Scheduler" doc:id="f82324bf-5b58-4668-a93b-22b5ec6e0f80" url="https://anypoint.mulesoft.com/amc/application-manager/api/v2/organizations/${orgId}/environments/${envId}/deployments/e61b15d3-6ace-4dd1-9c2b-971bfe118756/schedulers/sync-salesforce-to-supabase/run" sendCorrelationId="ALWAYS">
+			<http:headers ><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+	"Authorization": vars.token
+}]]]></http:headers>
+		</http:request>
+		<ee:transform doc:name="Transform Message" doc:id="19e82ccb-e26f-4f86-90bd-3b5690524587">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</sub-flow>
+	<flow name="readLogs" doc:id="66f5b8e4-60b1-4925-b428-aaefd15703bb" >
+		<http:request method="GET" doc:name="Request_Get_ReadLogs" doc:id="b7cc82da-1613-47ea-8707-7b2ae1c210c8" url="https://anypoint.mulesoft.com/amc/application-manager/api/v2/organizations/${orgId}/environments/${envId}/deployments/{id}/specs/89d6354d-db52-4168-b615-7e0622709cb1/logs">
+			<http:headers ><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+	"Authorization": vars.token
+}]]]></http:headers>
+			<http:uri-params ><![CDATA[#[{
+	"id":vars.appId
+}]]]></http:uri-params>
+		</http:request>
+		<ee:transform doc:name="Transform Message" doc:id="299f9260-9594-4784-9144-53c0ecfa6b69" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<sub-flow name="downloadLogs" doc:id="6357e834-b10d-4fc1-a789-15737df87278" >
+		<http:request method="GET" doc:name="Request_Get_DownloadLogs" doc:id="f960d1ae-0744-4a89-b3ee-b6fb0d69d364" url="https://anypoint.mulesoft.com/amc/application-manager/api/v2/organizations/${orgId}/environments/${envId}/deployments/{id}/specs/df6badd4-13ca-4dcc-96f2-96658766a6c5/logs/file">
+			<http:headers ><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+	"Authorization": vars.token
+}]]]></http:headers>
+			<http:uri-params ><![CDATA[#[{
+	"id":vars.appId
+}]]]></http:uri-params>
+		</http:request>
+		<ee:transform doc:name="Transform Message" doc:id="cfb4fc77-10b4-47d8-baa8-61d0896fed23" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</sub-flow>
+	<sub-flow name="enableDisableScheduler" doc:id="91b28118-bf6c-4271-8cb8-03bebcb33e69" >
+		<!-- [STUDIO:"Transform Message"]<ee:transform doc:name="Transform Message" doc:id="3142139b-0396-447e-b56e-2a178e30fdcf" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+&#45;&#45;-
+[{
+  "flowName": "daily-inventory-snapshot",
+  "enabled": true
+}&#93;&#93;&#93;></ee:set-payload>
+			</ee:message>
+		</ee:transform> [STUDIO] -->
+		<ee:transform doc:name="Transform Message" doc:id="77cdaa0e-8261-413f-a8ea-43f1a2d3f98c" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+[{
+  "flowName": vars.schedulerChanger.flowName,
+  "enabled": vars.schedulerChanger.enabled
+}]]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<http:request method="PATCH" doc:name="Request_Enable_Disable" doc:id="085e44ec-7830-4fc5-bb36-2c9505c82bf0" url="https://anypoint.mulesoft.com/amc/application-manager/api/v2/organizations/${orgId}/environments/${envId}/deployments/{id}/schedulers">
+			<http:headers ><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+	"Authorization": vars.token
+}]]]></http:headers>
+			<http:uri-params ><![CDATA[#[{
+	"id":vars.appId
+}]]]></http:uri-params>
+		</http:request>
+		<ee:transform doc:name="Transform Message" doc:id="32534940-f664-4057-8b5d-752dba59b09e" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</sub-flow>
+	<sub-flow name="updateCronConfig" doc:id="15f3991e-e01f-46df-a42c-fb9b8efe960d" >
+		<ee:transform doc:name="Transform Message" doc:id="36b58ed8-f1ed-4aa5-bf25-2fa174bb483d" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	flowName:vars.updateCron.flowName,
+  "expression": vars.updateCron.expression,
+  "timeZone": vars.updateCron.timeZone,
+  "enabled": vars.updateCron.enabled
+}
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<http:request method="PUT" doc:name="Request_Update_Cron_Config" doc:id="e33030a3-b6b7-46a8-b1a1-039cff475f9d" url="https://anypoint.mulesoft.com/amc/application-manager/api/v2/organizations/${orgId}/environments/${envId}/deployments/{id}/schedulers/{flowName}">
+			<http:headers ><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+	"Authorization": vars.token
+}]]]></http:headers>
+			<http:uri-params ><![CDATA[#[{
+	"id":vars.appId,
+	"flowName":vars.updateCron.flowName
+}]]]></http:uri-params>
+		</http:request>
+		<ee:transform doc:name="Transform Message" doc:id="770b47ea-f250-45cd-a935-0360395ab976">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</sub-flow>
+	<sub-flow name="updateFixedFrequency" doc:id="2ec029fe-fa26-4431-aa5d-e46611fd0d34" >
+		<ee:transform doc:name="Transform Message" doc:id="e355175b-d835-49c5-9f15-5a7e007ac7a3" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	flowName:vars.updateFreq.flowName,
+  "timeUnit": vars.updateFreq.timeUnit,
+  "frequency": vars.updateFreq.frequency,
+  "startDelay": vars.updateFreq.startDelay,
+  "enabled": vars.updateFreq.enabled,
+  "fixedFrequencyScehduler": vars.updateFreq.fixedFrequencyScheduler
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<http:request method="PUT" doc:name="Request_Update_Fixed_Frequency" doc:id="36afbdb1-0894-4447-9f7c-707788b1d817" url="https://anypoint.mulesoft.com/amc/application-manager/api/v2/organizations/${orgId}/environments/${envId}/deployments/{id}/schedulers/{flowName}">
+			<http:headers ><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+	"Authorization": vars.token
+}]]]></http:headers>
+			<http:uri-params ><![CDATA[#[{
+	"id":vars.appId,
+	flowName:vars.updateFreq.flowName
+}]]]></http:uri-params>
+		</http:request>
+		<ee:transform doc:name="Transform Message" doc:id="f9b9a77c-f37c-408a-8c7f-96cc893a3a8d" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</sub-flow>
+	<sub-flow name="UpdateVcores" doc:id="a388f27d-68d8-4b39-8628-dcb5e9b78fb0" >
+		<http:request method="PATCH" doc:name="Request" doc:id="ec14b38f-74b5-4f5e-bf24-54a313c56278" url="https://anypoint.mulesoft.com/amc/application-manager/api/v2/organizations/${orgId}/environments/${envId}/deployments/e61b15d3-6ace-4dd1-9c2b-971bfe118756">
+			<http:body ><![CDATA[#[{
+  "application": {
+    "vCores": 0.2
+  }
+}]]]></http:body>
+			<http:headers ><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+	"Authorization": vars.token
+}]]]></http:headers>
+		</http:request>
+		<ee:transform doc:name="Transform Message" doc:id="55484560-af81-4d9b-aa3e-a5f4f6b26d07" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</sub-flow>
+	<sub-flow name="replicas" doc:id="82a557e6-d50a-47ec-b278-48d2e2ad6402" >
+		<ee:transform doc:name="Transform Message" doc:id="403059e7-23fd-4c3e-9d7a-a0f4b3997b64" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	replicas:vars.replicas.replicas
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<http:request method="PATCH" doc:name="Request_Patch_Replica" doc:id="99d4d20c-6f26-493a-b654-54e73384edfc" url="https://anypoint.mulesoft.com/amc/application-manager/api/v2/organizations/${orgId}/environments/${envId}/deployments/{id}">
+			<http:body ><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+  "target": {
+    "replicas": 2
+  }
+}]]]></http:body>
+			<http:headers ><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+	"Authorization": vars.token
+}]]]></http:headers>
+			<http:uri-params ><![CDATA[#[{
+	"id":vars.appId
+}]]]></http:uri-params>
+		</http:request>
+		<ee:transform doc:name="Transform Message" doc:id="9edb9243-c8a4-4b04-9a11-aaf48fcc88cd">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</sub-flow>
+	<sub-flow name="releaseChannel" doc:id="0d898715-49d4-4a4b-92cd-4d0a98386c6c" >
+		<ee:transform doc:name="Transform Message" doc:id="e32c52e0-2e75-4de5-8b73-68ab0be0deb6" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	runtimeReleaseChannel:vars.release..replicas[0]
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<http:request method="PATCH" doc:name="Request_Patch_ReleaseChannel" doc:id="cb2c210f-b5ae-410b-af9e-20b12e23f6bb" url="https://anypoint.mulesoft.com/amc/application-manager/api/v2/organizations/${orgId}/environments/${envId}/deployments/{id}">
+			<http:body ><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+  "target": {
+    "deploymentSettings": {
+      "runtimeReleaseChannel": payload.runtimeReleaseChannel
+    }
+  }
+}]]]></http:body>
+			<http:headers ><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+	"Authorization": vars.token
+}]]]></http:headers>
+			<http:uri-params ><![CDATA[#[{
+	"id":vars.appId
+}]]]></http:uri-params>
+		</http:request>
+		<ee:transform doc:name="Transform Message" doc:id="b0541341-1868-435e-8fa2-38a7e843bf25">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</sub-flow>
+	<sub-flow name="getEnv" doc:id="04b00f2a-371c-40f0-8466-8d6edb278e7c" >
+		<http:request method="GET" doc:name="Request" doc:id="9c90cbc0-99f7-4bc4-b572-a42a6aa758af" url="https://anypoint.mulesoft.com/accounts/api/organizations/${orgId}/environments">
+			<http:headers ><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+	"Authorization": vars.token
+}]]]></http:headers>
+		</http:request>
+		<ee:transform doc:name="Transform Message" doc:id="180b7007-f4f7-49ca-8b98-4ce4bf4b5942">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</sub-flow>
+	<sub-flow name="runtimeVersion" doc:id="f254de0a-3036-498e-afea-4703320c65ba" >
+		<ee:transform doc:name="Transform Message" doc:id="741dafac-a234-463f-a82f-21c3ccaba74c">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	runtimeVersion:vars.runtimeVersion.runtimeVersion
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<http:request method="PATCH" doc:name="Request_runtime_Version" doc:id="a6d54f18-a4fd-4c93-abff-e986c10d49f4" url="https://anypoint.mulesoft.com/amc/application-manager/api/v2/organizations/${orgId}/environments/${envId}/deployments/{id}">
+			<http:body ><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+  "target": {
+    "deploymentSettings": {
+      "runtimeVersion": vars.runtimeVersion.runtimeVersion
+    }
+  }
+}]]]></http:body>
+			<http:headers ><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+	"Authorization": vars.token
+}]]]></http:headers>
+			<http:uri-params ><![CDATA[#[{
+	"id":vars.appId
+}]]]></http:uri-params>
+		</http:request>
+		<ee:transform doc:name="Transform Message" doc:id="ea573f53-a3b9-4f8a-b711-739a56dc4f68">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</sub-flow>
+	<sub-flow name="StopApp" doc:id="5a1b9e6d-1b3c-4eae-a46d-c460534fb3f2" >
+		<ee:transform doc:name="Transform Message" doc:id="9dd73d0e-28bf-4f64-93ef-4babb7dc3bd8" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	desiredState:vars.stopApp.desiredState
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<http:request method="PATCH" doc:name="Request" doc:id="8b2a222a-60b0-4ecb-b875-800d8f30d1c9" url="https://anypoint.mulesoft.com/amc/application-manager/api/v2/organizations/${orgId}/environments/${envId}/deployments/{id}">
+			<http:body ><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+  "application": {
+    "desiredState": "STOPPED"
+  }
+}]]]></http:body>
+			<http:headers ><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+	"Authorization": vars.token
+}]]]></http:headers>
+			<http:uri-params ><![CDATA[#[{
+	"id":vars.appId
+}]]]></http:uri-params>
+		</http:request>
+		<ee:transform doc:name="Transform Message" doc:id="33422148-3d3d-4061-af8e-413744dbafcd" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</sub-flow>
+	<sub-flow name="getDeploymentInfo" doc:id="87f0b7a0-de60-485c-87d9-6be3a4c31c64" >
+		<http:request method="GET" doc:name="Request" doc:id="24307a88-e86c-4948-b34f-678bc6a2b94c" url="https://anypoint.mulesoft.com/amc/application-manager/api/v2/organizations/${orgId}/environments/${envId}/deployments/{id}" sendCorrelationId="ALWAYS">
+			<http:headers ><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+	"Authorization": vars.token
+}]]]></http:headers>
+			<http:uri-params ><![CDATA[#[{
+	"id":vars.appId
+}]]]></http:uri-params>
+		</http:request>
+		<ee:transform doc:name="Transform Message" doc:id="cb92d5f1-dd7d-468d-8e0f-d0b91ce9755d">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</sub-flow>
+	<sub-flow name="startApp" doc:id="2d86b104-22f0-4b5d-8670-1e7831f21667" >
+		<ee:transform doc:name="Transform Message" doc:id="d336f3eb-0bca-4064-b247-28e43f4d7186" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	desiredState:vars.startApp.desiredState
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<http:request method="PATCH" doc:name="Request" doc:id="34fcdcca-17ee-4a8e-b716-cc128a9eb7e0" url="https://anypoint.mulesoft.com/amc/application-manager/api/v2/organizations/${orgId}/environments/${envId}/deployments/{id}">
+			<http:body ><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+  "application": {
+    "desiredState": "STARTED"
+  }
+}]]]></http:body>
+			<http:headers ><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+	"Authorization": vars.token
+}]]]></http:headers>
+			<http:uri-params ><![CDATA[#[{
+	"id":vars.appId
+}]]]></http:uri-params>
+		</http:request>
+		<ee:transform doc:name="Transform Message" doc:id="ae588e48-43bc-4523-bb89-90b2ce4f9c5b" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</sub-flow>
+</mule>

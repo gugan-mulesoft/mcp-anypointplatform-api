@@ -1,0 +1,4 @@
+%dw 2.0
+
+type auto_04f9e997_1dcc_48da_946e_593c12e019e1_Output_Variables_token = Any
+

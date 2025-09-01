@@ -1,0 +1,4 @@
+%dw 2.0
+
+type auto_ae61a40b_9460_4015_b803_beee7aba2cca_Input_Variables_token = Any
+

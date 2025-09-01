@@ -1,0 +1,4 @@
+%dw 2.0
+
+type auto_87f0b7a0_de60_485c_87d9_6be3a4c31c64_Output_Variables_startApp = {| desiredState: Null |}
+

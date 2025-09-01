@@ -1,0 +1,4 @@
+%dw 2.0
+
+type auto_04b00f2a_371c_40f0_8466_8d6edb278e7c_Input_Variables_startApp = {| desiredState: Null |}
+
